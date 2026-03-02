@@ -18,12 +18,16 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Set Java 17
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
+          echo "$JAVA_HOME_17_X64/bin" >> $GITHUB_PATH
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             python3-pip git zip unzip \
-            openjdk-17-jdk \
             autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev libncursesw5-dev \
             libtinfo5 cmake libffi-dev libssl-dev \
@@ -49,21 +53,20 @@ jobs:
           buildozer android debug 2>&1 | tee build.log
         timeout-minutes: 60
 
-      - name: Find APK location
+      - name: Find and copy APK to output folder
         if: always()
         run: |
-          echo "=== Searching for APK files ==="
-          find . -name "*.apk" 2>/dev/null
-          echo "=== bin/ folder ==="
-          ls -la bin/ 2>/dev/null || echo "bin/ does not exist"
+          echo "=== All APK files found ==="
+          find /home/runner/work -name "*.apk" 2>/dev/null
+          mkdir -p apk_output
+          find /home/runner/work -name "*.apk" -exec cp {} apk_output/ \; 2>/dev/null
+          ls -la apk_output/
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: FakeJobDetector-APK
-          path: |
-            bin/*.apk
-            **/*.apk
+          path: apk_output/
           if-no-files-found: warn
 
       - name: Upload build log
