@@ -38,12 +38,6 @@ jobs:
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Clear NDK conflict
-        run: |
-          unset ANDROID_NDK
-          unset ANDROID_NDK_HOME
-          unset ANDROID_NDK_ROOT
-
       - name: Build APK
         env:
           ANDROID_NDK: ""
@@ -53,14 +47,27 @@ jobs:
           buildozer android debug 2>&1 | tee build.log
         timeout-minutes: 60
 
+      - name: Find APK location
+        if: always()
+        run: |
+          echo "=== Searching for APK files ==="
+          find . -name "*.apk" 2>/dev/null
+          echo "=== Contents of bin/ (if exists) ==="
+          ls -la bin/ 2>/dev/null || echo "bin/ folder does not exist"
+          echo "=== Contents of current directory ==="
+          ls -la
+
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: FakeJobDetector-APK
-          path: bin/*.apk
+          path: |
+            bin/*.apk
+            **/*.apk
+          if-no-files-found: warn
 
-      - name: Upload build log on failure
-        if: failure()
+      - name: Upload build log
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
