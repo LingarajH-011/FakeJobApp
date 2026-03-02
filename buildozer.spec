@@ -5,7 +5,7 @@ package.domain = org.fakejob
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,pkl,csv,txt,json
 version = 1.0
-requirements = python3,kivy,kivymd,requests,scikit-learn,pandas,numpy,joblib,langdetect,matplotlib,seaborn,pillow
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,requests,scikit-learn,pandas,numpy,joblib,pillow
 
 orientation = portrait
 osx.python_version = 3
